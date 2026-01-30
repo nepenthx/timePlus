@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.nepenthx.timer.data.Priority
 import com.nepenthx.timer.data.RecurringType
 import com.nepenthx.timer.data.TodoItem
+import com.nepenthx.timer.ui.theme.LocalAppColors
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -25,10 +26,14 @@ fun TodoItemCard(
     modifier: Modifier = Modifier
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
+    val appColors = LocalAppColors.current
 
     Card(
         modifier = modifier.fillMaxWidth(),
-        onClick = onClick
+        onClick = onClick,
+        colors = CardDefaults.cardColors(
+            containerColor = appColors.card.copy(alpha = 0.7f)
+        )
     ) {
         Row(
             modifier = Modifier
@@ -83,7 +88,10 @@ fun TodoItemCard(
 
                     // 周期性标签
                     if (todo.recurringType != RecurringType.NONE) {
-                        RecurringChip(recurringType = todo.recurringType)
+                        RecurringChip(
+                            recurringType = todo.recurringType,
+                            customWeekDays = todo.customWeekDays
+                        )
                     }
                 }
             }
@@ -146,11 +154,19 @@ fun PriorityChip(priority: Priority) {
 }
 
 @Composable
-fun RecurringChip(recurringType: RecurringType) {
+fun RecurringChip(recurringType: RecurringType, customWeekDays: Int = 0) {
     val text = when (recurringType) {
         RecurringType.DAILY -> "每天"
         RecurringType.WEEKLY -> "每周"
         RecurringType.MONTHLY -> "每月"
+        RecurringType.CUSTOM_WEEKLY -> {
+            val days = com.nepenthx.timer.data.WeekDays.getSelectedDays(customWeekDays)
+            if (days.size <= 2) {
+                "每${days.joinToString("、")}"
+            } else {
+                "每周${days.size}天"
+            }
+        }
         RecurringType.NONE -> ""
     }
 
@@ -165,7 +181,7 @@ fun RecurringChip(recurringType: RecurringType) {
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Refresh,
+                    imageVector = Icons.Default.Repeat,
                     contentDescription = null,
                     modifier = Modifier.size(12.dp),
                     tint = MaterialTheme.colorScheme.onSecondaryContainer

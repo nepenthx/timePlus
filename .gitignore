@@ -13,3 +13,8 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Keystore文件（包含敏感信息）
+keystore.properties
+*.jks
+*.keystore

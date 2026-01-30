@@ -27,6 +27,14 @@ object DateUtils {
             currentDay = currentDay.plusDays(1)
         }
         
+        // 填充末尾的空白天，确保总数是7的倍数
+        val remainder = days.size % 7
+        if (remainder != 0) {
+            repeat(7 - remainder) {
+                days.add(null)
+            }
+        }
+        
         return days
     }
 
