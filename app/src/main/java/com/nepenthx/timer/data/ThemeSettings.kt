@@ -1,8 +1,48 @@
+/**
+ * 主题设置相关定义
+ *
+ * 本文件定义了应用的主题预设和主题配置数据类。
+ * 提供多种预设主题供用户选择，并支持自定义主题颜色。
+ *
+ * 主要功能：
+ * - 定义多种预设主题配色方案
+ * - 支持自定义主题颜色
+ * - 提供主题配置的数据结构
+ *
+ * 预设主题包括：
+ * - DEFAULT: 默认主题（Material 3 紫色系）
+ * - MORANDI系列: 莫兰迪色系（灰粉、灰蓝、灰绿）
+ * - CLASSIC_BW: 经典黑白主题
+ * - DARK_NIGHT: 深邃夜空深色主题
+ * - MINT_FRESH: 清新薄荷主题
+ * - WARM_SUNSET: 温暖日落主题
+ * - SAKURA: 樱花粉主题
+ * - CUSTOM: 自定义主题
+ *
+ * @author nepenthx
+ * @since 1.0
+ */
 package com.nepenthx.timer.data
 
 import androidx.compose.ui.graphics.Color
 
-// 预设主题配色
+/**
+ * 主题预设枚举类
+ *
+ * 定义应用的预设主题配色方案，每个主题包含完整的颜色配置。
+ *
+ * @property displayName 主题显示名称
+ * @property primaryColor 主色调，用于按钮、图标等重点元素
+ * @property secondaryColor 次要色调，用于辅助元素
+ * @property backgroundColor 背景色，用于页面背景
+ * @property surfaceColor 表面色，用于卡片、对话框等表面
+ * @property cardColor 卡片色，用于待办卡片背景
+ * @property textColor 文字色，用于主要文字
+ * @property calendarColor 日历色，用于日历相关元素
+ * @property dateColor 日期色，用于日期文字
+ * @property gradientStartColor 渐变起始色，可选，用于背景渐变
+ * @property gradientEndColor 渐变结束色，可选，用于背景渐变
+ */
 enum class ThemePreset(
     val displayName: String,
     val primaryColor: Long,
@@ -16,7 +56,9 @@ enum class ThemePreset(
     val gradientStartColor: Long? = null,
     val gradientEndColor: Long? = null
 ) {
-    // 默认主题
+    // ==================== 预设主题定义 ====================
+    
+    /** 默认主题 - Material 3 标准紫色系 */
     DEFAULT(
         displayName = "默认",
         primaryColor = 0xFF6750A4,
@@ -29,7 +71,7 @@ enum class ThemePreset(
         dateColor = 0xFF1C1B1F
     ),
     
-    // 莫兰迪色系 - 灰粉
+    /** 莫兰迪色系 - 灰粉，柔和温馨的粉色系 */
     MORANDI_PINK(
         displayName = "莫兰迪·灰粉",
         primaryColor = 0xFFB8A9A9,
@@ -42,7 +84,7 @@ enum class ThemePreset(
         dateColor = 0xFF5C5252
     ),
     
-    // 莫兰迪色系 - 灰蓝
+    /** 莫兰迪色系 - 灰蓝，沉稳宁静的蓝色系 */
     MORANDI_BLUE(
         displayName = "莫兰迪·灰蓝",
         primaryColor = 0xFF8E9AAF,
@@ -55,7 +97,7 @@ enum class ThemePreset(
         dateColor = 0xFF4A5568
     ),
     
-    // 莫兰迪色系 - 灰绿
+    /** 莫兰迪色系 - 灰绿，清新自然的绿色系 */
     MORANDI_GREEN(
         displayName = "莫兰迪·灰绿",
         primaryColor = 0xFF9CAF9C,
@@ -68,7 +110,7 @@ enum class ThemePreset(
         dateColor = 0xFF4A5A4A
     ),
     
-    // 经典黑白
+    /** 经典黑白 - 极简主义风格，纯净黑白 */
     CLASSIC_BW(
         displayName = "经典黑白",
         primaryColor = 0xFF212121,
@@ -81,7 +123,7 @@ enum class ThemePreset(
         dateColor = 0xFF212121
     ),
     
-    // 深邃夜空
+    /** 深邃夜空 - 深色主题，适合夜间使用，带渐变背景 */
     DARK_NIGHT(
         displayName = "深邃夜空",
         primaryColor = 0xFF7B68EE,
@@ -96,7 +138,7 @@ enum class ThemePreset(
         gradientEndColor = 0xFF16213E
     ),
     
-    // 清新薄荷
+    /** 清新薄荷 - 清爽的薄荷绿色系，给人清新感 */
     MINT_FRESH(
         displayName = "清新薄荷",
         primaryColor = 0xFF26A69A,
@@ -109,7 +151,7 @@ enum class ThemePreset(
         dateColor = 0xFF004D40
     ),
     
-    // 温暖日落
+    /** 温暖日落 - 温暖的橙色系，带渐变背景，给人温馨感 */
     WARM_SUNSET(
         displayName = "温暖日落",
         primaryColor = 0xFFFF7043,
@@ -124,7 +166,7 @@ enum class ThemePreset(
         gradientEndColor = 0xFFFFF3E0
     ),
     
-    // 樱花粉
+    /** 樱花粉 - 浪漫的粉色系，适合喜欢粉色的用户 */
     SAKURA(
         displayName = "樱花粉",
         primaryColor = 0xFFE91E63,
@@ -137,7 +179,7 @@ enum class ThemePreset(
         dateColor = 0xFF880E4F
     ),
     
-    // 自定义
+    /** 自定义主题 - 用户可自定义所有颜色 */
     CUSTOM(
         displayName = "自定义",
         primaryColor = 0xFF6750A4,
@@ -151,7 +193,25 @@ enum class ThemePreset(
     )
 }
 
-// 主题设置数据类
+/**
+ * 主题设置数据类
+ *
+ * 存储当前应用的主题配置，可以是预设主题或自定义主题。
+ * 当选择预设主题时，各颜色值继承自预设；选择自定义主题时，可独立设置每个颜色。
+ *
+ * @property preset 当前使用的主题预设
+ * @property primaryColor 主色调
+ * @property secondaryColor 次要色调
+ * @property backgroundColor 背景色
+ * @property surfaceColor 表面色
+ * @property cardColor 卡片色
+ * @property textColor 文字色
+ * @property calendarColor 日历色
+ * @property dateColor 日期色
+ * @property gradientEnabled 是否启用背景渐变
+ * @property gradientStartColor 渐变起始色
+ * @property gradientEndColor 渐变结束色
+ */
 data class ThemeSettings(
     val preset: ThemePreset = ThemePreset.DEFAULT,
     val primaryColor: Long = preset.primaryColor,
@@ -166,5 +226,11 @@ data class ThemeSettings(
     val gradientStartColor: Long = preset.gradientStartColor ?: preset.backgroundColor,
     val gradientEndColor: Long = preset.gradientEndColor ?: preset.backgroundColor
 ) {
+    /**
+     * 将 Long 类型的颜色值转换为 Compose Color 对象
+     *
+     * @param colorLong ARGB格式的颜色值
+     * @return Compose Color 对象
+     */
     fun toColor(colorLong: Long): Color = Color(colorLong)
 }

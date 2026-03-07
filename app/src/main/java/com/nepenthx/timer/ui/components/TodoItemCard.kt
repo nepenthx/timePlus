@@ -1,3 +1,16 @@
+/**
+ * 待办卡片组件
+ *
+ * 本文件定义了待办事项卡片、优先级标签和周期性标签等UI组件。
+ *
+ * 主要组件：
+ * - TodoItemCard: 待办事项卡片，显示标题、时间、备注和标签
+ * - PriorityChip: 优先级标签组件
+ * - RecurringChip: 周期性标签组件
+ *
+ * @author nepenthx
+ * @since 1.0
+ */
 package com.nepenthx.timer.ui.components
 
 import androidx.compose.foundation.layout.*
@@ -12,6 +25,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.nepenthx.timer.data.Priority
 import com.nepenthx.timer.data.RecurringType
+import com.nepenthx.timer.data.SubTask
 import com.nepenthx.timer.data.TodoItem
 import com.nepenthx.timer.ui.theme.LocalAppColors
 import java.time.format.DateTimeFormatter
@@ -23,6 +37,8 @@ fun TodoItemCard(
     onClick: () -> Unit,
     onToggleComplete: () -> Unit,
     onDelete: () -> Unit,
+    subTasks: List<SubTask> = emptyList(),
+    onToggleSubTask: ((SubTask) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }

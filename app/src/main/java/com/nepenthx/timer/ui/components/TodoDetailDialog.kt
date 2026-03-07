@@ -1,3 +1,20 @@
+/**
+ * 待办详情对话框组件
+ *
+ * 本文件定义了待办事项详情查看和编辑的对话框界面。
+ * 提供待办的完整信息展示、编辑、打卡和子任务管理功能。
+ *
+ * 主要功能：
+ * - 待办基本信息展示（标题、备注、时间）
+ * - 待办编辑（标题、备注、日期时间）
+ * - 子任务管理（添加、完成、删除）
+ * - 打卡功能（针对周期性待办）
+ * - 完成状态切换
+ * - 删除待办
+ *
+ * @author nepenthx
+ * @since 1.0
+ */
 package com.nepenthx.timer.ui.components
 
 import androidx.compose.foundation.layout.*
@@ -13,12 +30,31 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.nepenthx.timer.data.CheckInRecord
 import com.nepenthx.timer.data.RecurringType
+import com.nepenthx.timer.data.SubTask
 import com.nepenthx.timer.data.TodoItem
 import com.nepenthx.timer.ui.theme.LocalAppColors
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+/**
+ * 待办详情对话框组件
+ *
+ * 显示待办的详细信息，支持编辑、打卡、子任务管理等操作。
+ *
+ * @param todo 待办事项数据
+ * @param checkIns 打卡记录列表
+ * @param onDismiss 关闭对话框回调
+ * @param onComplete 完成状态切换回调
+ * @param onDeleteTodo 删除待办回调
+ * @param onCheckIn 打卡回调
+ * @param onCancelCheckIn 取消打卡回调
+ * @param onUpdateTodo 更新待办回调
+ * @param subTasks 子任务列表
+ * @param onAddSubTask 添加子任务回调
+ * @param onToggleSubTask 切换子任务完成状态回调
+ * @param onDeleteSubTask 删除子任务回调
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TodoDetailDialog(

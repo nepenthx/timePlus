@@ -1,3 +1,26 @@
+/**
+ * 个人中心屏幕
+ *
+ * 本文件定义了应用的个人中心界面，提供主题设置、标签管理和数据管理功能。
+ *
+ * 主要功能模块：
+ * 1. 主题设置 - 预设主题选择
+ * 2. 自定义颜色 - 自定义各组件颜色和渐变效果
+ * 3. 标签管理 - 管理待办分类标签
+ * 4. 数据管理 - 导入导出待办数据
+ * 5. 关于信息 - 应用版本信息
+ *
+ * 界面布局：
+ * - 头部：标题
+ * - 主题设置卡片：预设主题列表
+ * - 自定义颜色卡片：各颜色选项和渐变设置
+ * - 标签管理卡片：标签预览和管理入口
+ * - 数据管理卡片：导入导出功能
+ * - 关于卡片：版本信息
+ *
+ * @author nepenthx
+ * @since 1.0
+ */
 package com.nepenthx.timer.ui.screens
 
 import androidx.compose.foundation.background
@@ -28,6 +51,23 @@ import com.nepenthx.timer.data.TodoTag
 import com.nepenthx.timer.ui.components.TagManagementDialog
 import com.nepenthx.timer.ui.theme.LocalAppColors
 
+/**
+ * 个人中心屏幕组件
+ *
+ * 显示应用设置和个人信息，提供主题、标签和数据管理功能。
+ *
+ * @param themeSettings 当前主题设置
+ * @param tags 标签列表
+ * @param onPresetSelected 预设主题选择回调
+ * @param onCustomColorChange 自定义颜色变更回调
+ * @param onAddTag 添加标签回调
+ * @param onUpdateTag 更新标签回调
+ * @param onDeleteTag 删除标签回调
+ * @param onExportICal 导出iCal回调
+ * @param onExportJson 导出JSON回调
+ * @param onImportData 导入数据回调
+ * @param modifier 修饰符
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
@@ -60,6 +100,7 @@ fun ProfileScreen(
     var editingColorType by remember { mutableStateOf<ColorType?>(null) }
     var showTagManagement by remember { mutableStateOf(false) }
 
+    // ==================== 主界面布局 ====================
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -507,7 +548,8 @@ fun ProfileScreen(
         item { Spacer(modifier = Modifier.height(80.dp)) }
     }
 
-    // 颜色选择对话框
+    // ==================== 颜色选择对话框 ====================
+    /** 显示颜色选择对话框 */
     if (showColorPicker && editingColorType != null) {
         ColorPickerDialog(
             currentColor = when (editingColorType) {
@@ -543,7 +585,8 @@ fun ProfileScreen(
         )
     }
 
-    // 标签管理对话框
+    // ==================== 标签管理对话框 ====================
+    /** 显示标签管理对话框 */
     if (showTagManagement) {
         TagManagementDialog(
             tags = tags,
@@ -555,10 +598,24 @@ fun ProfileScreen(
     }
 }
 
+/**
+ * 颜色类型枚举
+ *
+ * 定义可自定义的颜色类型。
+ */
 enum class ColorType {
     PRIMARY, CALENDAR, DATE, CARD, BACKGROUND, TEXT, GRADIENT_START, GRADIENT_END
 }
 
+/**
+ * 主题预设项组件
+ *
+ * 显示单个主题预设的选择项，包含颜色预览和名称。
+ *
+ * @param preset 主题预设
+ * @param isSelected 是否选中
+ * @param onClick 点击回调
+ */
 @Composable
 private fun ThemePresetItem(
     preset: ThemePreset,
@@ -620,6 +677,16 @@ private fun ThemePresetItem(
     }
 }
 
+/**
+ * 颜色选项项组件
+ *
+ * 显示单个颜色选项，包含颜色圆点和标签。
+ *
+ * @param label 标签文字
+ * @param color 颜色值
+ * @param onClick 点击回调
+ * @param modifier 修饰符
+ */
 @Composable
 private fun ColorOptionItem(
     label: String,
@@ -653,13 +720,23 @@ private fun ColorOptionItem(
     }
 }
 
+/**
+ * 颜色选择对话框组件
+ *
+ * 显示预定义颜色网格供用户选择。
+ * 包含常规颜色、莫兰迪色系和灰度颜色。
+ *
+ * @param currentColor 当前选中的颜色
+ * @param onDismiss 关闭回调
+ * @param onColorSelected 颜色选择回调
+ */
 @Composable
 private fun ColorPickerDialog(
     currentColor: Long,
     onDismiss: () -> Unit,
     onColorSelected: (Long) -> Unit
 ) {
-    // 预定义颜色
+    /** 预定义颜色列表，包含常规颜色、莫兰迪色系和灰度颜色 */
     val presetColors = listOf(
         0xFFEF5350, 0xFFEC407A, 0xFFAB47BC, 0xFF7E57C2,
         0xFF5C6BC0, 0xFF42A5F5, 0xFF29B6F6, 0xFF26C6DA,

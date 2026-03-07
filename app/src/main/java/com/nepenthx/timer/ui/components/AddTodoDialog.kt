@@ -1,3 +1,21 @@
+/**
+ * 添加待办对话框组件
+ *
+ * 本文件定义了添加新待办事项的对话框界面。
+ * 提供完整的待办创建功能，包括时间选择、周期设置、标签选择等。
+ *
+ * 主要功能：
+ * - 标题和备注输入
+ * - 日期和时间选择（滚动式时间选择器）
+ * - 优先级选择（低/中/高）
+ * - 周期性设置（不重复/每天/每周/每月/自定义周天）
+ * - 标签选择
+ * - 通知提醒设置
+ * - 子任务开关
+ *
+ * @author nepenthx
+ * @since 1.0
+ */
 package com.nepenthx.timer.ui.components
 
 import androidx.compose.foundation.background
@@ -33,6 +51,16 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
+/**
+ * 添加待办对话框组件
+ *
+ * 显示添加新待办事项的表单对话框。
+ *
+ * @param selectedDate 预选日期
+ * @param tags 可选标签列表
+ * @param onDismiss 关闭对话框回调
+ * @param onConfirm 确认添加回调，包含所有待办属性
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTodoDialog(
@@ -414,6 +442,16 @@ fun AddTodoDialog(
     }
 }
 
+/**
+ * 滚动式时间选择对话框
+ *
+ * 提供滚动式的小时和分钟选择器，支持快捷时间按钮。
+ * 采用现代化的滚动列表设计，选中的时间高亮显示。
+ *
+ * @param initialTime 初始时间
+ * @param onDismiss 关闭回调
+ * @param onConfirm 确认回调，返回选中的时间
+ */
 @Composable
 fun ScrollTimePickerDialog(
     initialTime: LocalTime,
@@ -610,6 +648,12 @@ fun ScrollTimePickerDialog(
     )
 }
 
+/**
+ * 获取优先级显示文本
+ *
+ * @param priority 优先级枚举
+ * @return 中文显示文本
+ */
 private fun getPriorityText(priority: Priority): String {
     return when (priority) {
         Priority.HIGH -> "高"
@@ -618,6 +662,12 @@ private fun getPriorityText(priority: Priority): String {
     }
 }
 
+/**
+ * 获取周期类型标签文本
+ *
+ * @param recurringType 周期类型枚举
+ * @return 中文标签文本
+ */
 private fun getRecurringTypeLabel(recurringType: RecurringType): String {
     return when (recurringType) {
         RecurringType.NONE -> "不重复"
@@ -628,6 +678,15 @@ private fun getRecurringTypeLabel(recurringType: RecurringType): String {
     }
 }
 
+/**
+ * 获取周期类型完整显示文本
+ *
+ * 根据周期类型和自定义周天设置，生成可读的周期描述文本。
+ *
+ * @param recurringType 周期类型枚举
+ * @param customWeekDays 自定义周天位掩码
+ * @return 中文描述文本
+ */
 private fun getRecurringText(recurringType: RecurringType, customWeekDays: Int): String {
     return when (recurringType) {
         RecurringType.NONE -> "不重复"
@@ -649,6 +708,14 @@ private fun getRecurringText(recurringType: RecurringType, customWeekDays: Int):
     }
 }
 
+/**
+ * 获取通知时间显示文本
+ *
+ * 将分钟数转换为易读的中文时间描述。
+ *
+ * @param minutes 提前通知的分钟数
+ * @return 中文时间描述
+ */
 private fun getNotifyTimeText(minutes: Int): String {
     return when {
         minutes < 60 -> "${minutes}分钟"
