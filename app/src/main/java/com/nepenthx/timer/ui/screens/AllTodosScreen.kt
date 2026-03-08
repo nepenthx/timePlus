@@ -16,6 +16,7 @@ import com.nepenthx.timer.data.SubTask
 import com.nepenthx.timer.data.TodoItem
 import com.nepenthx.timer.data.TodoTag
 import com.nepenthx.timer.ui.components.EmptyStateView
+import com.nepenthx.timer.ui.components.PullDownSearchLayout
 import com.nepenthx.timer.ui.components.SwipeableTaskRow
 import com.nepenthx.timer.ui.components.TodoItemRow
 import com.nepenthx.timer.ui.theme.LocalAppColors
@@ -32,7 +33,8 @@ fun AllTodosScreen(
     onToggleComplete: (TodoItem) -> Unit,
     onDeleteTodo: (TodoItem) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: TodoViewModel? = null
+    viewModel: TodoViewModel? = null,
+    onSearchTriggered: () -> Unit = {}
 ) {
     val appColors = LocalAppColors.current
     
@@ -65,33 +67,39 @@ fun AllTodosScreen(
         }
     }
 
-    if (todos.isEmpty()) {
-        EmptyStateView(
-            message = "没有任务",
-            icon = Icons.Outlined.Inbox,
-            modifier = modifier.fillMaxSize()
-        )
-    } else {
-        LazyColumn(
-            modifier = modifier.fillMaxSize().padding(horizontal = 16.dp),
-            contentPadding = PaddingValues(top = 16.dp, bottom = 80.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            items(sortedTodos, key = { it.id }) { todo ->
-                SwipeableTaskRow(
-                    onSwipeToStart = { onDeleteTodo(todo) },
-                    onSwipeToEnd = { 
-                        viewModel?.updateTodo(todo.copy(dueDateTime = todo.dueDateTime.plusDays(1))) 
-                    },
-                    modifier = Modifier.animateItem()
-                ) {
-                    TodoItemRow(
-                        todo = todo,
-                        onClick = { onTodoClick(todo) },
-                        onToggleComplete = { onToggleComplete(todo) },
-                        subTasks = subTasksMap[todo.id] ?: emptyList(),
-                        onToggleSubTask = { subTask -> viewModel?.toggleSubTask(subTask) }
-                    )
+    PullDownSearchLayout(
+        onSearchTriggered = onSearchTriggered,
+        modifier = modifier
+    ) {
+        if (todos.isEmpty()) {
+            EmptyStateView(
+                message = "没有任务",
+                icon = Icons.Outlined.Inbox,
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                contentPadding = PaddingValues(top = 16.dp, bottom = 80.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                items(sortedTodos, key = { it.id }) { todo ->
+                    SwipeableTaskRow(
+                        onSwipeToStart = { onDeleteTodo(todo) },
+                        currentDateTime = todo.dueDateTime,
+                        onPostpone = { newDateTime ->
+                            viewModel?.updateTodo(todo.copy(dueDateTime = newDateTime))
+                        },
+                        modifier = Modifier.animateItem()
+                    ) {
+                        TodoItemRow(
+                            todo = todo,
+                            onClick = { onTodoClick(todo) },
+                            onToggleComplete = { onToggleComplete(todo) },
+                            subTasks = subTasksMap[todo.id] ?: emptyList(),
+                            onToggleSubTask = { subTask -> viewModel?.toggleSubTask(subTask) }
+                        )
+                    }
                 }
             }
         }

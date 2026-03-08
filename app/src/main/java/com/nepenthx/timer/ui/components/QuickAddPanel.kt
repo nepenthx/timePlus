@@ -230,11 +230,12 @@ fun QuickAddPanel(
     }
 
     if (showTimePicker) {
-        ScrollTimePickerDialog(
-            initialTime = selectedTime,
+        ScrollDateTimePickerDialog(
+            initialDateTime = LocalDateTime.of(LocalDate.now(), LocalTime.now()),
             onDismiss = { showTimePicker = false },
-            onConfirm = { time ->
-                selectedTime = time
+            onConfirm = { dateTime ->
+                selectedDate = dateTime.toLocalDate()
+                selectedTime = dateTime.toLocalTime()
                 showTimePicker = false
             }
         )

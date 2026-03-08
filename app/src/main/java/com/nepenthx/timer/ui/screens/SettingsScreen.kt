@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.nepenthx.timer.data.ThemePreset
 import com.nepenthx.timer.data.ThemeSettings
 import com.nepenthx.timer.data.TodoTag
+import com.nepenthx.timer.ui.components.AnimatedDialog
 import com.nepenthx.timer.ui.components.TagManagementDialog
 import com.nepenthx.timer.ui.theme.LocalAppColors
 
@@ -36,6 +37,8 @@ import com.nepenthx.timer.ui.theme.LocalAppColors
 fun SettingsScreen(
     themeSettings: ThemeSettings,
     tags: List<TodoTag>,
+    defaultView: String = "today",
+    onDefaultViewChange: (String) -> Unit = {},
     onPresetSelected: (ThemePreset) -> Unit,
     onCustomColorChange: (
         primaryColor: Long?,
@@ -474,6 +477,77 @@ fun SettingsScreen(
             }
         }
 
+        // 默认视图
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = appColors.card)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Home,
+                            contentDescription = null,
+                            tint = appColors.primary
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = "默认视图",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = "设置打开应用时显示的默认页面",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = appColors.text.copy(alpha = 0.6f)
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    val viewOptions = listOf(
+                        "today" to "今天",
+                        "upcoming" to "即将到来",
+                        "anytime" to "随时",
+                        "completed" to "已完成"
+                    )
+                    var selectedView by remember { mutableStateOf(defaultView) }
+
+                    viewOptions.forEach { (route, label) ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    selectedView = route
+                                    onDefaultViewChange(route)
+                                }
+                                .padding(vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = selectedView == route,
+                                onClick = {
+                                    selectedView = route
+                                    onDefaultViewChange(route)
+                                }
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = label,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = appColors.text
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
         // 关于
         item {
             Card(
@@ -713,12 +787,17 @@ private fun ColorPickerDialog(
         0xFF212121, 0xFF424242, 0xFF616161, 0xFFFFFFFF
     )
     
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("选择颜色") },
-        text = {
-            Column {
-                // 颜色网格
+    AnimatedDialog(onDismissRequest = onDismiss) {
+        Card(
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        ) {
+            Column(modifier = Modifier.padding(24.dp)) {
+                Text(
+                    "选择颜色",
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Spacer(modifier = Modifier.height(16.dp))
                 for (row in presetColors.chunked(8)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -754,12 +833,16 @@ private fun ColorPickerDialog(
                     }
                     Spacer(modifier = Modifier.height(4.dp))
                 }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("取消")
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text("取消")
+                    }
+                }
             }
         }
-    )
+    }
 }

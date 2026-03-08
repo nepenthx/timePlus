@@ -20,6 +20,7 @@ package com.nepenthx.timer.data
 
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 /**
  * 待办事项数据仓库
@@ -77,6 +78,24 @@ class TodoRepository(
 
     /** 根据ID删除待办事项 */
     suspend fun deleteTodoById(id: Long) = todoDao.deleteTodoById(id)
+
+    /** 软删除（移入垃圾箱） */
+    suspend fun softDeleteTodo(id: Long) = todoDao.softDeleteTodo(id, LocalDateTime.now().toString())
+
+    /** 从垃圾箱恢复 */
+    suspend fun restoreTodo(id: Long) = todoDao.restoreTodo(id)
+
+    /** 获取垃圾箱中的待办 */
+    fun getDeletedTodos(): Flow<List<TodoItem>> = todoDao.getDeletedTodos()
+
+    /** 清理超过30天的已删除待办 */
+    suspend fun purgeOldDeletedTodos() {
+        val cutoff = LocalDateTime.now().minusDays(30).toString()
+        todoDao.purgeOldDeletedTodos(cutoff)
+    }
+
+    /** 彻底删除（从垃圾箱中永久删除） */
+    suspend fun permanentlyDeleteTodo(todo: TodoItem) = todoDao.deleteTodo(todo)
 
     // ==================== 子任务相关操作 ====================
     

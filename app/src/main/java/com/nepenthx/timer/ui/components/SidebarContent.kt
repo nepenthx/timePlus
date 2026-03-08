@@ -46,6 +46,7 @@ sealed class SidebarDestination(
     object Anytime : SidebarDestination("anytime", "随时", Icons.Outlined.Inbox, Icons.Filled.Inbox)
     object Completed : SidebarDestination("completed", "已完成", Icons.Outlined.CheckCircle, Icons.Filled.CheckCircle)
     data class TagFilter(val tagId: Long, val tagName: String, val tagColor: Long) : SidebarDestination("tag_$tagId", tagName, Icons.Outlined.Label, Icons.Filled.Label)
+    object Trash : SidebarDestination("trash", "垃圾箱", Icons.Outlined.Delete, Icons.Filled.Delete)
     object Settings : SidebarDestination("settings", "设置", Icons.Outlined.Settings, Icons.Filled.Settings)
 }
 
@@ -61,12 +62,13 @@ fun SidebarContent(
     upcomingCount: Int = 0,
     anytimeCount: Int = 0,
     completedCount: Int = 0,
+    trashCount: Int = 0,
     tagCounts: Map<Long, Int> = emptyMap()
 ) {
     val appColors = LocalAppColors.current
 
     ModalDrawerSheet(
-        drawerContainerColor = appColors.surface,
+        drawerContainerColor = appColors.background,
         drawerContentColor = appColors.text
     ) {
         // 头部
@@ -169,12 +171,19 @@ fun SidebarContent(
             }
         }
 
-        // 底部设置
+        // 底部：垃圾箱 + 设置
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp, vertical = 12.dp)
         ) {
+            SidebarItem(
+                destination = SidebarDestination.Trash,
+                isSelected = selectedDestination is SidebarDestination.Trash,
+                onClick = { onDestinationSelected(SidebarDestination.Trash) },
+                count = trashCount,
+                appColors = appColors
+            )
             SidebarItem(
                 destination = SidebarDestination.Settings,
                 isSelected = selectedDestination is SidebarDestination.Settings,

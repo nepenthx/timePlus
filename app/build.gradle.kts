@@ -48,8 +48,8 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            // 应用签名配置
-            signingConfig = signingConfigs.getByName("release")
+            // 临时使用 debug 签名
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {

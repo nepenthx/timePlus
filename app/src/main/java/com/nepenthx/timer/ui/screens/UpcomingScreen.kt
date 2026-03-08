@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.nepenthx.timer.data.SubTask
 import com.nepenthx.timer.data.TodoItem
 import com.nepenthx.timer.ui.components.EmptyStateView
+import com.nepenthx.timer.ui.components.PullDownSearchLayout
 import com.nepenthx.timer.ui.components.SwipeableTaskRow
 import com.nepenthx.timer.ui.components.TodoItemRow
 import com.nepenthx.timer.ui.theme.LocalAppColors
@@ -32,7 +33,8 @@ import java.util.Locale
 @Composable
 fun UpcomingScreen(
     viewModel: TodoViewModel,
-    onTodoClick: (TodoItem) -> Unit
+    onTodoClick: (TodoItem) -> Unit,
+    onSearchTriggered: () -> Unit = {}
 ) {
     val appColors = LocalAppColors.current
     val todos by viewModel.upcomingTodos.collectAsState(initial = emptyList())
@@ -51,80 +53,86 @@ fun UpcomingScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp)
+    PullDownSearchLayout(
+        onSearchTriggered = onSearchTriggered,
+        modifier = Modifier.fillMaxSize()
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        Text(
-            text = "即将到来",
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
-            color = appColors.text
-        )
-        
-        Spacer(modifier = Modifier.height(24.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp)
+        ) {
+            Spacer(modifier = Modifier.height(16.dp))
 
-        if (groupedTodos.isEmpty()) {
-            EmptyStateView(
-                message = "没有即将到来的任务",
-                icon = Icons.Outlined.CalendarMonth,
-                modifier = Modifier.weight(1f)
+            Text(
+                text = "即将到来",
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.Bold,
+                color = appColors.text
             )
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                groupedTodos.forEach { (date, dailyTodos) ->
-                    stickyHeader {
-                        AnimatedVisibility(
-                            visible = true,
-                            enter = fadeIn() + expandVertically()
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(appColors.background)
-                                    .padding(vertical = 8.dp)
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            if (groupedTodos.isEmpty()) {
+                EmptyStateView(
+                    message = "没有即将到来的任务",
+                    icon = Icons.Outlined.CalendarMonth,
+                    modifier = Modifier.weight(1f)
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    groupedTodos.forEach { (date, dailyTodos) ->
+                        stickyHeader {
+                            AnimatedVisibility(
+                                visible = true,
+                                enter = fadeIn() + expandVertically()
                             ) {
-                                Text(
-                                    text = getRelativeDateString(date),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = appColors.text.copy(alpha = 0.8f)
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(appColors.background)
+                                        .padding(vertical = 8.dp)
+                                ) {
+                                    Text(
+                                        text = getRelativeDateString(date),
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = appColors.text.copy(alpha = 0.8f)
+                                    )
+                                }
+                            }
+                        }
+
+                        items(dailyTodos, key = { "${it.id}_${it.dueDateTime}" }) { todo ->
+                            SwipeableTaskRow(
+                                onSwipeToStart = { viewModel.deleteTodo(todo) },
+                                currentDateTime = todo.dueDateTime,
+                                onPostpone = { newDateTime ->
+                                    viewModel.updateTodo(todo.copy(dueDateTime = newDateTime))
+                                },
+                                modifier = Modifier.animateItem()
+                            ) {
+                                TodoItemRow(
+                                    todo = todo,
+                                    onClick = { onTodoClick(todo) },
+                                    onToggleComplete = { viewModel.toggleTodoCompletion(todo) },
+                                    subTasks = subTasksMap[todo.id] ?: emptyList(),
+                                    onToggleSubTask = { subTask -> viewModel.toggleSubTask(subTask) }
                                 )
                             }
                         }
-                    }
-                    
-                    items(dailyTodos, key = { "${it.id}_${it.dueDateTime}" }) { todo ->
-                        SwipeableTaskRow(
-                            onSwipeToStart = { viewModel.deleteTodo(todo) },
-                            onSwipeToEnd = { 
-                                viewModel.updateTodo(todo.copy(dueDateTime = todo.dueDateTime.plusDays(1))) 
-                            },
-                            modifier = Modifier.animateItem()
-                        ) {
-                            TodoItemRow(
-                                todo = todo,
-                                onClick = { onTodoClick(todo) },
-                                onToggleComplete = { viewModel.toggleTodoCompletion(todo) },
-                                subTasks = subTasksMap[todo.id] ?: emptyList(),
-                                onToggleSubTask = { subTask -> viewModel.toggleSubTask(subTask) }
-                            )
+
+                        item {
+                            Spacer(modifier = Modifier.height(16.dp))
                         }
                     }
-                    
+
                     item {
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(80.dp))
                     }
-                }
-                
-                item {
-                    Spacer(modifier = Modifier.height(80.dp))
                 }
             }
         }

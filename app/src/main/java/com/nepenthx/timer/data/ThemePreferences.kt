@@ -178,4 +178,22 @@ class ThemePreferences(context: Context) {
     fun saveSortMode(mode: SortMode) {
         prefs.edit().putString("sortMode", mode.name).apply()
     }
+
+    /**
+     * 获取默认视图偏好
+     *
+     * @return 用户设置的默认视图路由名，默认为 "today"
+     */
+    fun getDefaultView(): String {
+        return prefs.getString("defaultView", "today") ?: "today"
+    }
+
+    /**
+     * 保存默认视图偏好
+     *
+     * @param viewRoute 视图路由名 (today/upcoming/anytime/completed)
+     */
+    fun saveDefaultView(viewRoute: String) {
+        prefs.edit().putString("defaultView", viewRoute).apply()
+    }
 }

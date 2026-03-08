@@ -29,10 +29,13 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     val themePreferences: ThemePreferences
 
     init {
-        // 初始化数据库和仓库
         val database = AppDatabase.getDatabase(application)
         repository = TodoRepository(database.todoDao(), database.checkInDao(), database.tagDao(), database.subTaskDao())
         themePreferences = ThemePreferences(application)
+        
+        viewModelScope.launch {
+            repository.purgeOldDeletedTodos()
+        }
     }
     
     // ==================== 主题设置相关 ====================
@@ -56,6 +59,12 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     fun setSortMode(mode: SortMode) {
         _sortMode.value = mode
         themePreferences.saveSortMode(mode)
+    }
+
+    fun getDefaultView(): String = themePreferences.getDefaultView()
+
+    fun setDefaultView(viewRoute: String) {
+        themePreferences.saveDefaultView(viewRoute)
     }
     
     /**
@@ -392,13 +401,41 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
-     * 删除待办事项
-     *
-     * @param todo 要删除的待办事项
+     * 软删除待办事项（移入垃圾箱）
      */
     fun deleteTodo(todo: TodoItem) {
         viewModelScope.launch {
-            repository.deleteTodo(todo)
+            repository.softDeleteTodo(todo.id)
+        }
+    }
+
+    // ==================== 垃圾箱管理 ====================
+
+    val deletedTodos: Flow<List<TodoItem>> = repository.getDeletedTodos()
+
+    fun restoreTodo(todo: TodoItem) {
+        viewModelScope.launch {
+            repository.restoreTodo(todo.id)
+        }
+    }
+
+    fun permanentlyDeleteTodo(todo: TodoItem) {
+        viewModelScope.launch {
+            repository.permanentlyDeleteTodo(todo)
+        }
+    }
+
+    fun emptyTrash() {
+        viewModelScope.launch {
+            repository.getDeletedTodos().first().forEach { todo ->
+                repository.permanentlyDeleteTodo(todo)
+            }
+        }
+    }
+
+    fun purgeOldDeletedTodos() {
+        viewModelScope.launch {
+            repository.purgeOldDeletedTodos()
         }
     }
 

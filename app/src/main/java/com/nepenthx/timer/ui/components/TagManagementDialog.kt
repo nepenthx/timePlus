@@ -19,7 +19,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.nepenthx.timer.data.TodoTag
 import com.nepenthx.timer.ui.theme.LocalAppColors
@@ -36,7 +35,7 @@ fun TagManagementDialog(
     var showAddDialog by remember { mutableStateOf(false) }
     var editingTag by remember { mutableStateOf<TodoTag?>(null) }
 
-    Dialog(
+    AnimatedDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {

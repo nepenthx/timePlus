@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.nepenthx.timer.data.SubTask
 import com.nepenthx.timer.data.TodoItem
 import com.nepenthx.timer.ui.components.EmptyStateView
+import com.nepenthx.timer.ui.components.PullDownSearchLayout
 import com.nepenthx.timer.ui.components.SwipeableTaskRow
 import com.nepenthx.timer.ui.components.TodoItemRow
 import com.nepenthx.timer.ui.theme.LocalAppColors
@@ -27,7 +28,8 @@ import java.util.Locale
 @Composable
 fun TodayScreen(
     viewModel: TodoViewModel,
-    onTodoClick: (TodoItem) -> Unit
+    onTodoClick: (TodoItem) -> Unit,
+    onSearchTriggered: () -> Unit = {}
 ) {
     val appColors = LocalAppColors.current
     val todos by viewModel.todosForToday.collectAsState(initial = emptyList())
@@ -41,67 +43,73 @@ fun TodayScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp)
+    PullDownSearchLayout(
+        onSearchTriggered = onSearchTriggered,
+        modifier = Modifier.fillMaxSize()
     ) {
-        val today = LocalDate.now()
-        val dateStr = today.format(DateTimeFormatter.ofPattern("M月d日 EEEE", Locale.CHINA))
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        Text(
-            text = dateStr,
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
-            color = appColors.text
-        )
-        
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        if (todos.isNotEmpty()) {
-            val completedCount = todos.count { it.isCompleted }
-            Text(
-                text = "今天 · ${completedCount}/${todos.size} 已完成",
-                style = MaterialTheme.typography.bodyMedium,
-                color = appColors.text.copy(alpha = 0.6f)
-            )
-        }
-        
-        Spacer(modifier = Modifier.height(24.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp)
+        ) {
+            val today = LocalDate.now()
+            val dateStr = today.format(DateTimeFormatter.ofPattern("M月d日 EEEE", Locale.CHINA))
 
-        if (todos.isEmpty()) {
-            EmptyStateView(
-                message = "今天没有任务，享受你的一天",
-                icon = Icons.Outlined.Today,
-                modifier = Modifier.weight(1f)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = dateStr,
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.Bold,
+                color = appColors.text
             )
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                items(todos, key = { it.id }) { todo ->
-                    SwipeableTaskRow(
-                        onSwipeToStart = { viewModel.deleteTodo(todo) },
-                        onSwipeToEnd = { 
-                            viewModel.updateTodo(todo.copy(dueDateTime = todo.dueDateTime.plusDays(1))) 
-                        },
-                        modifier = Modifier.animateItem()
-                    ) {
-                        TodoItemRow(
-                            todo = todo,
-                            onClick = { onTodoClick(todo) },
-                            onToggleComplete = { viewModel.toggleTodoCompletion(todo) },
-                            subTasks = subTasksMap[todo.id] ?: emptyList(),
-                            onToggleSubTask = { subTask -> viewModel.toggleSubTask(subTask) }
-                        )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            if (todos.isNotEmpty()) {
+                val completedCount = todos.count { it.isCompleted }
+                Text(
+                    text = "今天 · ${completedCount}/${todos.size} 已完成",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = appColors.text.copy(alpha = 0.6f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            if (todos.isEmpty()) {
+                EmptyStateView(
+                    message = "今天没有任务，享受你的一天",
+                    icon = Icons.Outlined.Today,
+                    modifier = Modifier.weight(1f)
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    items(todos, key = { it.id }) { todo ->
+                        SwipeableTaskRow(
+                            onSwipeToStart = { viewModel.deleteTodo(todo) },
+                            currentDateTime = todo.dueDateTime,
+                            onPostpone = { newDateTime ->
+                                viewModel.updateTodo(todo.copy(dueDateTime = newDateTime))
+                            },
+                            modifier = Modifier.animateItem()
+                        ) {
+                            TodoItemRow(
+                                todo = todo,
+                                onClick = { onTodoClick(todo) },
+                                onToggleComplete = { viewModel.toggleTodoCompletion(todo) },
+                                subTasks = subTasksMap[todo.id] ?: emptyList(),
+                                onToggleSubTask = { subTask -> viewModel.toggleSubTask(subTask) }
+                            )
+                        }
                     }
-                }
-                
-                item {
-                    Spacer(modifier = Modifier.height(80.dp))
+
+                    item {
+                        Spacer(modifier = Modifier.height(80.dp))
+                    }
                 }
             }
         }

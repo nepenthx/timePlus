@@ -69,6 +69,10 @@ data class TodoItem(
     // 子任务相关
     val hasSubTasks: Boolean = false,
     
+    // 软删除（垃圾箱）
+    val isDeleted: Boolean = false,
+    val deletedAt: LocalDateTime? = null,
+    
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val updatedAt: LocalDateTime = LocalDateTime.now()
 ) {

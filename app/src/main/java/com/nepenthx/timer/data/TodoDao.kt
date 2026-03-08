@@ -41,7 +41,7 @@ interface TodoDao {
      *
      * @return 待办事项列表的 Flow
      */
-    @Query("SELECT * FROM todo_items ORDER BY dueDateTime ASC")
+    @Query("SELECT * FROM todo_items WHERE isDeleted = 0 ORDER BY dueDateTime ASC")
     fun getAllTodos(): Flow<List<TodoItem>>
 
     /**
@@ -63,7 +63,7 @@ interface TodoDao {
      */
     @Query("""
         SELECT * FROM todo_items 
-        WHERE date(dueDateTime) = :date 
+        WHERE date(dueDateTime) = :date AND isDeleted = 0
         ORDER BY dueDateTime ASC, priority DESC
     """)
     fun getTodosByDate(date: String): Flow<List<TodoItem>>
@@ -79,7 +79,7 @@ interface TodoDao {
      */
     @Query("""
         SELECT * FROM todo_items 
-        WHERE date(dueDateTime) BETWEEN :startDate AND :endDate 
+        WHERE date(dueDateTime) BETWEEN :startDate AND :endDate AND isDeleted = 0
         ORDER BY dueDateTime ASC
     """)
     fun getTodosByDateRange(startDate: String, endDate: String): Flow<List<TodoItem>>
@@ -92,7 +92,7 @@ interface TodoDao {
      *
      * @return 周期性待办事项列表的 Flow
      */
-    @Query("SELECT * FROM todo_items WHERE recurringType != 'NONE'")
+    @Query("SELECT * FROM todo_items WHERE recurringType != 'NONE' AND isDeleted = 0")
     fun getRecurringTodos(): Flow<List<TodoItem>>
 
     /**
@@ -129,4 +129,16 @@ interface TodoDao {
      */
     @Query("DELETE FROM todo_items WHERE id = :id")
     suspend fun deleteTodoById(id: Long)
+
+    @Query("SELECT * FROM todo_items WHERE isDeleted = 1 ORDER BY deletedAt DESC")
+    fun getDeletedTodos(): Flow<List<TodoItem>>
+
+    @Query("UPDATE todo_items SET isDeleted = 1, deletedAt = :deletedAt WHERE id = :id")
+    suspend fun softDeleteTodo(id: Long, deletedAt: String)
+
+    @Query("UPDATE todo_items SET isDeleted = 0, deletedAt = NULL WHERE id = :id")
+    suspend fun restoreTodo(id: Long)
+
+    @Query("DELETE FROM todo_items WHERE isDeleted = 1 AND deletedAt < :cutoffDate")
+    suspend fun purgeOldDeletedTodos(cutoffDate: String)
 }
