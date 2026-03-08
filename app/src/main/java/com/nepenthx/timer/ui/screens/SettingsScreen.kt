@@ -1,26 +1,3 @@
-/**
- * 个人中心屏幕
- *
- * 本文件定义了应用的个人中心界面，提供主题设置、标签管理和数据管理功能。
- *
- * 主要功能模块：
- * 1. 主题设置 - 预设主题选择
- * 2. 自定义颜色 - 自定义各组件颜色和渐变效果
- * 3. 标签管理 - 管理待办分类标签
- * 4. 数据管理 - 导入导出待办数据
- * 5. 关于信息 - 应用版本信息
- *
- * 界面布局：
- * - 头部：标题
- * - 主题设置卡片：预设主题列表
- * - 自定义颜色卡片：各颜色选项和渐变设置
- * - 标签管理卡片：标签预览和管理入口
- * - 数据管理卡片：导入导出功能
- * - 关于卡片：版本信息
- *
- * @author nepenthx
- * @since 1.0
- */
 package com.nepenthx.timer.ui.screens
 
 import androidx.compose.foundation.background
@@ -33,8 +10,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -52,25 +27,13 @@ import com.nepenthx.timer.ui.components.TagManagementDialog
 import com.nepenthx.timer.ui.theme.LocalAppColors
 
 /**
- * 个人中心屏幕组件
+ * 设置屏幕组件
  *
  * 显示应用设置和个人信息，提供主题、标签和数据管理功能。
- *
- * @param themeSettings 当前主题设置
- * @param tags 标签列表
- * @param onPresetSelected 预设主题选择回调
- * @param onCustomColorChange 自定义颜色变更回调
- * @param onAddTag 添加标签回调
- * @param onUpdateTag 更新标签回调
- * @param onDeleteTag 删除标签回调
- * @param onExportICal 导出iCal回调
- * @param onExportJson 导出JSON回调
- * @param onImportData 导入数据回调
- * @param modifier 修饰符
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(
+fun SettingsScreen(
     themeSettings: ThemeSettings,
     tags: List<TodoTag>,
     onPresetSelected: (ThemePreset) -> Unit,
@@ -110,7 +73,7 @@ fun ProfileScreen(
         // 头部
         item {
             Text(
-                text = "我的",
+                text = "设置",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = appColors.text
@@ -603,7 +566,7 @@ fun ProfileScreen(
  *
  * 定义可自定义的颜色类型。
  */
-enum class ColorType {
+private enum class ColorType {
     PRIMARY, CALENDAR, DATE, CARD, BACKGROUND, TEXT, GRADIENT_START, GRADIENT_END
 }
 

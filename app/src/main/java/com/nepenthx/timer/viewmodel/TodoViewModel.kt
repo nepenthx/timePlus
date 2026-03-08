@@ -1,28 +1,3 @@
-/**
- * 主视图模型
- *
- * 本文件定义了应用的主 ViewModel，是 MVVM 架构的核心组件。
- * ViewModel 作为 UI 层和数据层之间的桥梁，负责管理 UI 状态和处理业务逻辑。
- *
- * 主要功能模块：
- * 1. 主题设置管理 - 管理应用主题预设和自定义颜色
- * 2. 排序模式管理 - 管理待办列表的排序方式
- * 3. 日期和视图模式 - 管理当前选中的日期和日历视图模式
- * 4. 待办事项管理 - 待办的增删改查和完成状态切换
- * 5. 子任务管理 - 子任务的增删改和完成状态切换
- * 6. 打卡功能 - 习惯追踪的打卡和取消打卡
- * 7. 标签管理 - 标签的增删改
- * 8. 数据导入导出 - 支持 iCal 和 JSON 格式
- * 9. 通知管理 - 待办提醒通知的调度
- *
- * 架构说明：
- * - 继承自 AndroidViewModel，可获取 Application 上下文
- * - 使用 StateFlow 暴露状态，实现响应式 UI 更新
- * - 使用 viewModelScope 管理协程，自动处理生命周期
- *
- * @author nepenthx
- * @since 1.0
- */
 package com.nepenthx.timer.viewmodel
 
 import android.app.Application
@@ -135,11 +110,6 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     /** 当前选中日期的公开状态流 */
     val selectedDate: StateFlow<LocalDate> = _selectedDate.asStateFlow()
 
-    /** 当前视图模式的内部可变状态，默认为周视图 */
-    private val _viewMode = MutableStateFlow(ViewMode.WEEK)
-    
-    /** 当前视图模式的公开状态流 */
-    val viewMode: StateFlow<ViewMode> = _viewMode.asStateFlow()
 
     // ==================== 待办事项数据流 ====================
     
@@ -198,15 +168,6 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
-     * 设置日历视图模式
-     *
-     * @param mode 视图模式（日/周/月）
-     */
-    fun setViewMode(mode: ViewMode) {
-        _viewMode.value = mode
-    }
-
-    /**
      * 获取日期范围内的待办事项（包括周期性待办）
      *
      * 用于周视图和月视图，合并范围内的待办和在该范围内应该显示的周期性待办。
@@ -256,6 +217,29 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
             }
             
             allTodos.sortedBy { it.dueDateTime }
+        }
+    }
+
+    // ==================== 新增数据流 (Things 3 风格) ====================
+
+    /** 今天的任务（固定 LocalDate.now()） */
+    val todosForToday: Flow<List<TodoItem>> = getTodosByDateRange(LocalDate.now(), LocalDate.now())
+
+    /** 即将到来（未来 30 天，按日期分组） */
+    val upcomingTodos: Flow<List<TodoItem>> = getTodosByDateRange(
+        LocalDate.now().plusDays(1),
+        LocalDate.now().plusDays(30)
+    )
+
+    /** 已完成的任务 */
+    val completedTodos: Flow<List<TodoItem>> = repository.getAllTodos().map { list ->
+        list.filter { it.isCompleted }.sortedByDescending { it.updatedAt }
+    }
+
+    /** 按标签筛选 */
+    fun todosByTag(tagId: Long): Flow<List<TodoItem>> {
+        return repository.getAllTodos().map { list ->
+            list.filter { it.tagId == tagId }
         }
     }
 
@@ -617,19 +601,4 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
-}
-
-/**
- * 日历视图模式枚举
- *
- * 定义日历界面的三种显示模式。
- *
- * - DAY: 日视图，显示单日的待办
- * - WEEK: 周视图，显示一周的待办
- * - MONTH: 月视图，显示一月的待办
- */
-enum class ViewMode {
-    DAY,
-    WEEK,
-    MONTH
 }
